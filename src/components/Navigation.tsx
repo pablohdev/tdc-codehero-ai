@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Trophy } from "lucide-react";
 
 const Navigation = () => {
   const navigate = useNavigate();
@@ -53,6 +53,15 @@ const Navigation = () => {
               Home
             </Button>
           )}
+          
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/ranking')}
+            className="flex items-center space-x-2 hover:bg-primary/10"
+          >
+            <Trophy className="h-4 w-4" />
+            <span className="hidden sm:inline">Ranking</span>
+          </Button>
           
           {!loading && (
             <>

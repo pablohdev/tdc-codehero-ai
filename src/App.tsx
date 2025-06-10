@@ -11,6 +11,7 @@ import Lesson from "./pages/Lesson";
 import Profile from "./pages/Profile";
 import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
+import Ranking from "./pages/Ranking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/ranking" element={<Ranking />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
