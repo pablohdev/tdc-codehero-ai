@@ -55,21 +55,17 @@ const Ranking = () => {
       }
 
       if (!statsData || statsData.length === 0) {
-        console.log('Nenhuma estatística encontrada');
         setTopUsers([]);
         return;
       }
 
       // Buscar perfis dos usuários
       const userIds = statsData.map(stat => stat.user_id);
-      console.log('IDs dos usuários:', userIds);
       
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .in('id', userIds);
-
-      console.log('Dados de perfis:', profilesData, 'Erro:', profilesError);
 
       if (profilesError) {
         console.error('Erro ao buscar perfis:', profilesError);
@@ -91,7 +87,6 @@ const Ranking = () => {
         };
       });
 
-      console.log('Dados transformados do ranking:', transformedData);
       setTopUsers(transformedData);
     } catch (error) {
       console.error('Erro ao buscar ranking:', error);
