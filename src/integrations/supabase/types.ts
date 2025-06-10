@@ -36,6 +36,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_progress: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          language: string
+          lesson_id: number
+          score: number
+          total_questions: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          language: string
+          lesson_id: number
+          score?: number
+          total_questions?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          language?: string
+          lesson_id?: number
+          score?: number
+          total_questions?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          lessons_completed: number
+          longest_streak: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          lessons_completed?: number
+          longest_streak?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          lessons_completed?: number
+          longest_streak?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
