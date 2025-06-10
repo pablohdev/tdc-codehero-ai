@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Medal, Award, Crown, Flame, Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Trophy, Medal, Award, Crown, Flame, Target, LogIn } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface RankingUser {
   id: string;
@@ -17,15 +20,26 @@ interface RankingUser {
 }
 
 const Ranking = () => {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [topUsers, setTopUsers] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchTopUsers();
-  }, []);
+    if (!authLoading) {
+      if (user) {
+        fetchTopUsers();
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [user, authLoading]);
 
   const fetchTopUsers = async () => {
     try {
+      setError(null);
+      
       // Buscar estatísticas dos usuários
       const { data: statsData, error: statsError } = await supabase
         .from('user_stats')
@@ -35,24 +49,31 @@ const Ranking = () => {
 
       if (statsError) {
         console.error('Erro ao buscar estatísticas:', statsError);
+        setError(`Erro ao buscar estatísticas: ${statsError.message}`);
+        setTopUsers([]);
         return;
       }
 
       if (!statsData || statsData.length === 0) {
+        console.log('Nenhuma estatística encontrada');
         setTopUsers([]);
         return;
       }
 
       // Buscar perfis dos usuários
       const userIds = statsData.map(stat => stat.user_id);
+      console.log('IDs dos usuários:', userIds);
+      
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .in('id', userIds);
 
+      console.log('Dados de perfis:', profilesData, 'Erro:', profilesError);
+
       if (profilesError) {
         console.error('Erro ao buscar perfis:', profilesError);
-        return;
+        // Mesmo com erro nos perfis, vamos mostrar os dados das estatísticas
       }
 
       // Combinar dados de estatísticas e perfis
@@ -70,10 +91,12 @@ const Ranking = () => {
         };
       });
 
-      console.log('Dados do ranking carregados:', transformedData);
+      console.log('Dados transformados do ranking:', transformedData);
       setTopUsers(transformedData);
     } catch (error) {
       console.error('Erro ao buscar ranking:', error);
+      setError(`Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      setTopUsers([]);
     } finally {
       setLoading(false);
     }
@@ -118,7 +141,7 @@ const Ranking = () => {
       .slice(0, 2);
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -127,6 +150,36 @@ const Ranking = () => {
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
               <p className="mt-4 text-muted-foreground">Carregando ranking...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-32 pb-24 px-4">
+          <div className="container mx-auto max-w-2xl text-center">
+            <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-8">
+              <LogIn className="h-16 w-16 text-primary mx-auto mb-4" />
+              <h1 className="text-3xl font-bold mb-4">
+                Acesso Restrito ao <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Ranking</span>
+              </h1>
+              <p className="text-lg text-muted-foreground mb-6">
+                Você precisa estar logado para visualizar o ranking dos CodeHeroes. 
+                Faça login para ver quem são os maiores heróis da programação!
+              </p>
+              <Button 
+                size="lg" 
+                className="gap-2 text-white text-lg px-8 py-6 hover:opacity-90 transition-opacity"
+                onClick={() => navigate('/auth')}
+              >
+                <LogIn className="h-5 w-5" />
+                Fazer Login
+              </Button>
             </div>
           </div>
         </div>
@@ -160,6 +213,11 @@ const Ranking = () => {
       {/* Ranking Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl">
+          {error && (
+            <div className="mb-4 text-center text-sm text-red-500">
+              Erro: {error}
+            </div>
+          )}
           {topUsers.length === 0 ? (
             <Card className="p-8 text-center">
               <Trophy className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
